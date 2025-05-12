@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 class DataManager:
     def __init__(self):
         self.raw_data = None  # 原始上传的数据
@@ -8,17 +7,25 @@ class DataManager:
         self.analysis_result = None  # 分析结果（如类标签、预测结果等）
         self.visuals = {}  # 图表数据缓存, key: 图类型, value: 图表对象或参数
 
+    def _check_file_format(self, file_path):
+        """检查文件格式是否支持"""
+        supported_extensions = ['.csv', '.xls', '.xlsx']
+        for ext in supported_extensions:
+            if file_path.endswith(ext):
+                return True
+        return False
+
     def load_data(self, file_path):
         """
         加载原始数据
         :param file_path: 数据文件路径
         """
+        if not self._check_file_format(file_path):
+            raise ValueError("Unsupported file format. Supported formats are csv, xls, xlsx")
         if file_path.endswith('.csv'):
             self.raw_data = pd.read_csv(file_path)
         elif file_path.endswith(('.xls', '.xlsx')):
             self.raw_data = pd.read_excel(file_path)
-        else:
-            raise ValueError("Unsupported file format. Supported formats are csv, xls, xlsx")
         self.cleaned_data = self.raw_data.copy()  # 初始化清洗后数据为原始数据副本
 
     def clean_data(self, cleaning_function):
