@@ -13,15 +13,15 @@ def clean_data1(data_top250: pd.DataFrame) -> pd.DataFrame:
     """
     df = data_top250.copy()
 
-    # 只保留指定字段（假设字段名如下，可按实际列名替换）
-    keep_cols = ['电影名字', '评分', '评分人数', 'year']
+
+    keep_cols = ['电影名字', '评分', '评分人数', '年份']
     df = df[keep_cols]
 
     # 类型转换
-    df['title'] = df['title'].astype(str)
-    df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
-    df['num_ratings'] = pd.to_numeric(df['num_ratings'], errors='coerce', downcast='integer')
-    df['year'] = pd.to_numeric(df['year'], errors='coerce', downcast='integer')
+    df['电影名字'] = df['电影名字'].astype(str)
+    df['评分'] = pd.to_numeric(df['评分'], errors='coerce')
+    df['评分人数'] = pd.to_numeric(df['评分人数'], errors='coerce', downcast='integer')
+    df['年份'] = pd.to_numeric(df['年份'], errors='coerce', downcast='integer')
 
     # 删除缺失值
     df.dropna(inplace=True)
