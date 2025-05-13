@@ -44,112 +44,68 @@
     <img id="visualization3" src="{{ url_for('static', filename='img.png') }}" alt="Visualization3">
     <script>
     $(document).ready(function () {
-        // API Analyze Section (Section 1)
-        $('#analyzeButton1').click(function () {
-            $.ajax({
-                url: '/apianalyze/analyzedata',
-                type: 'GET',
-                success: function (response) {
-                    $('#result1').append('<p>' + response.message + '</p>');
-                },
-                error: function (xhr, status, error) {
-                    $('#result1').append('<p>Error: ' + error + '</p>');
-                }
-            });
-        });
 
-        $('#exportButton1').click(function () {
-            $.ajax({
-                url: '/apianalyze/exportdata',
-                type: 'GET',
-                success: function (response) {
-                    var blob = new Blob([response.data], { type: 'application/octet-stream' });
-                    var url = URL.createObjectURL(blob);
-                    var a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'exported_data.csv';
-                    a.click();
-                },
-                error: function (xhr, status, error) {
-                    $('#result1').append('<p>Error: ' + error + '</p>');
-                }
-            });
-        });
-
-
-        // API Predict Section (Section 2)
-        $('#analyzeButton2').click(function () {
-            var country = $('#countrySelect').val();
-            $.ajax({
-                url: '/apipredict/analyzedata',
-                type: 'GET',
-                data: { country: country },
-                success: function (response) {
-                    $('#result2').append('<p>' + response.message + '</p>');
-                },
-                error: function (xhr, status, error) {
-                    $('#result2').append('<p>Error: ' + error + '</p>');
-                }
-            });
-        });
-
-        $('#exportButton2').click(function () {
-            var country = $('#countrySelect').val();
-            $.ajax({
-                url: '/apipredict/exportdata',
-                type: 'GET',
-                data: { country: country },
-                success: function (response) {
-                    var blob = new Blob([response.data], { type: 'application/octet-stream' });
-                    var url = URL.createObjectURL(blob);
-                    var a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'exported_data.csv';
-                    a.click();
-                },
-                error: function (xhr, status, error) {
-                    $('#result2').append('<p>Error: ' + error + '</p>');
-                }
-            });
-        });
-
-
-        // API Comments Section (Section 3)
-        $('#analyzeButton3').click(function () {
-            var movie = $('#movieSelect').val();
-            $.ajax({
-                url: '/apicomments/analyzedata',
-                type: 'GET',
-                data: { movie: movie },
-                success: function (response) {
-                    $('#result3').append('<p>' + response.message + '</p>');
-                },
-                error: function (xhr, status, error) {
-                    $('#result3').append('<p>Error: ' + error + '</p>');
-                }
-            });
-        });
-
-        $('#exportButton3').click(function () {
-            var movie = $('#movieSelect').val();
-            $.ajax({
-                url: '/apicomments/exportdata',
-                type: 'GET',
-                data: { movie: movie },
-                success: function (response) {
-                    var blob = new Blob([response.data], { type: 'application/octet-stream' });
-                    var url = URL.createObjectURL(blob);
-                    var a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'exported_data.csv';
-                    a.click();
-                },
-                error: function (xhr, status, error) {
-                    $('#result3').append('<p>Error: ' + error + '</p>');
-                }
-            });
+    $('#analyzeButton1').click(function () {
+        $.ajax({
+            url: '/api_analyze',
+            type: 'GET',
+            success: function (response) {
+                $('#result1').append('<p>分析完成</p>');
+            },
+            error: function (xhr, status, error) {
+                $('#result1').append('<p>Error: ' + error + '</p>');
+            }
         });
     });
+
+    $('#exportButton1').click(function () {
+        window.location.href = '/export_analyze';
+    });
+
+
+
+    $('#analyzeButton2').click(function () {
+        var country = $('#countrySelect').val();
+        $.ajax({
+            url: '/api_predict',
+            type: 'GET',
+            data: { country: country },
+            success: function (response) {
+                $('#result2').append('<p>预测完成</p>');
+            },
+            error: function (xhr, status, error) {
+                $('#result2').append('<p>Error: ' + error + '</p>');
+            }
+        });
+    });
+
+    $('#exportButton2').click(function () {
+        var country = $('#countrySelect').val();
+        window.location.href = '/export_predict?country=' + encodeURIComponent(country);
+    });
+
+
+
+    $('#analyzeButton3').click(function () {
+        var movie = $('#movieSelect').val();
+        $.ajax({
+            url: '/api_comments',
+            type: 'GET',
+            data: { movie: movie },
+            success: function (response) {
+                $('#result3').append('<p>评论分析完成</p>');
+            },
+            error: function (xhr, status, error) {
+                $('#result3').append('<p>Error: ' + error + '</p>');
+            }
+        });
+    });
+
+    $('#exportButton3').click(function () {
+        var movie = $('#movieSelect').val();
+        window.location.href = '/export_comments?movie=' + encodeURIComponent(movie);
+    });
+});
     </script>
 </body>
 </html>
