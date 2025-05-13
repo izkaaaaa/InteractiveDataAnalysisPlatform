@@ -1,4 +1,8 @@
 import pandas as pd
+from cleaning import clean_data1, clean_data2, clean_data3
+from analysis import analysis_function
+from predict import prediction_function
+from visualization import visual3
 
 class DataManager:
     def __init__(self):
@@ -66,53 +70,48 @@ class DataManager:
             self.data_comments[movie_name] = pd.read_excel(file_path)
         self.cleaned_data_comments[movie_name] = self.data_comments[movie_name].copy()  # 初始化清洗后数据为原始数据副本
 
-    def clean_data1(self, cleaning_function):
+    def clean_data1(self):
         """
         清洗豆瓣TOP250数据
-        :param cleaning_function: 数据清洗函数，需返回清洗后的DataFrame
         """
         if self.data_top250 is not None:
-            self.cleaned_data_top250 = cleaning_function(self.data_top250)
+            self.cleaned_data_top250 = clean_data1(self.data_top250)
         else:
             raise ValueError("No TOP250 data loaded yet. Please load data first.")
 
-    def clean_data2(self, country_name, cleaning_function):
+    def clean_data2(self, country_name):
         """
         清洗特定国家数据
         :param country_name: 国家名
-        :param cleaning_function: 数据清洗函数，需返回清洗后的DataFrame
         """
         if country_name in self.data_country:
-            self.cleaned_data_country[country_name] = cleaning_function(self.data_country[country_name])
+            self.cleaned_data_country[country_name] = clean_data2(self.data_country[country_name])
         else:
             raise ValueError(f"No data loaded for {country_name}. Please load data first.")
 
-    def clean_data3(self, movie_name, cleaning_function):
+    def clean_data3(self, movie_name):
         """
         清洗电影评论数据
         :param movie_name: 电影名
-        :param cleaning_function: 数据清洗函数，需返回清洗后的DataFrame
         """
         if movie_name in self.data_comments:
-            self.cleaned_data_comments[movie_name] = cleaning_function(self.data_comments[movie_name])
+            self.cleaned_data_comments[movie_name] = clean_data3(self.data_comments[movie_name])
         else:
             raise ValueError(f"No data loaded for {movie_name}. Please load data first.")
 
-    def analyze_data(self, analysis_function):
+    def analyze_data(self):
         """
         分析豆瓣TOP250数据
-        :param analysis_function: 数据分析函数，需返回分析结果的DataFrame
         """
         if self.cleaned_data_top250 is not None:
             self.analysis_data = analysis_function(self.cleaned_data_top250)
         else:
             raise ValueError("No cleaned TOP250 data available. Please clean data first.")
 
-    def predict_data(self, country_name, prediction_function):
+    def predict_data(self, country_name):
         """
         预测特定国家数据
         :param country_name: 国家名
-        :param prediction_function: 数据预测函数，需返回预测结果的DataFrame
         """
         if country_name in self.cleaned_data_country:
             self.predict_data[country_name] = prediction_function(self.cleaned_data_country[country_name])
@@ -151,8 +150,6 @@ class DataManager:
     def export_prediction_result_country(self, country_name):
         """导出特定国家数据预测结果"""
         return self.predict_data.get(country_name).copy() if country_name in self.predict_data else None
-
-
 
     def store_visual1(self, vis_type, visual_obj):
         """
