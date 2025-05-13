@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+from calendar import month_abbr
 
 def clean_data1(data_top250: pd.DataFrame) -> pd.DataFrame:
     """
@@ -33,25 +34,22 @@ def clean_data1(data_top250: pd.DataFrame) -> pd.DataFrame:
     df.reset_index(drop=True, inplace=True)
 
     return df
-
-
 def clean_data2(data_country: pd.DataFrame) -> pd.DataFrame:
     """
-    清洗 box office 数据：
-    - 仅保留需要的列：Dates、Top_10_Gross、Overall_Gross、Releases
-    - 转换日期为编号 Dates_number
-    - 去掉美元符号、逗号，转为 float 类型
-    - 使用线性插值补全缺失值
+    清洗 data_country 数据，用于预测功能：
+    - 仅保留 Dates, Top_10_Gross, Overall_Gross, Releases 三列
+    - 移除美元符号和千位分隔符，转为数值
+    - 将时间段按实际顺序编号为 Dates_number
+    - 缺失值用线性插值填充
+
+    返回清洗后的 pandas.DataFrame
     """
     df = data_country.copy()
 
-    # 1. 仅保留指定列
+    # 1. 保留所需列
     df = df[['Dates', 'Top_10_Gross', 'Overall_Gross', 'Releases']].copy()
 
-    # 2. 生成时间编号列
-    df['Dates_number'] = range(1, len(df) + 1)
-
-    # 3. 清洗货币格式为数值
+    # 2. 清洗货币列
     def clean_money(value):
         if pd.isnull(value):
             return None
@@ -64,15 +62,34 @@ def clean_data2(data_country: pd.DataFrame) -> pd.DataFrame:
     df['Top_10_Gross'] = df['Top_10_Gross'].apply(clean_money)
     df['Overall_Gross'] = df['Overall_Gross'].apply(clean_money)
 
-    # 4. 线性插值
+    # 3. Releases 数值化
+    df['Releases'] = pd.to_numeric(df['Releases'], errors='coerce')
+
+    # 4. 提取起始月和日用于排序
+    def extract_month_day(date_str):
+        match = re.match(r'([A-Za-z]+)\s+(\d+)', str(date_str))
+        if match:
+            month_str, day = match.groups()
+            try:
+                month_num = list(month_abbr).index(month_str[:3])
+                return month_num, int(day)
+            except ValueError:
+                return 0, 0
+        return 0, 0
+
+    df[['Month', 'Day']] = df['Dates'].apply(lambda x: pd.Series(extract_month_day(x)))
+
+    # 5. 按时间排序并生成编号
+    df.sort_values(by=['Month', 'Day'], inplace=True)
+    df['Dates_number'] = range(1, len(df) + 1)
+    df.drop(columns=['Month', 'Day'], inplace=True)
+
+    # 6. 用线性插值填补缺失值
     df['Top_10_Gross'] = df['Top_10_Gross'].interpolate(method='linear')
     df['Overall_Gross'] = df['Overall_Gross'].interpolate(method='linear')
-    df['Releases'] = pd.to_numeric(df['Releases'], errors='coerce')
     df['Releases'] = df['Releases'].interpolate(method='linear')
 
-    # 5. 重置索引
     df.reset_index(drop=True, inplace=True)
-
     return df
 
 
@@ -80,7 +97,7 @@ def clean_data3(data_comments: pd.DataFrame) -> pd.DataFrame:
     """
     对 data_comments 进行清洗：
     - 去除标点符号
-    - 去除停用词（示例词）
+    - 去除停用词（示例词）··
     - 删除空或无意义评论
     """
     df = data_comments.copy()
