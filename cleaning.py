@@ -37,10 +37,42 @@ def clean_data1(data_top250: pd.DataFrame) -> pd.DataFrame:
 
 def clean_data2(data_country: pd.DataFrame) -> pd.DataFrame:
     """
-    对 data_country 进行插值补全（线性插值）
+    清洗 box office 数据：
+    - 仅保留需要的列：Dates、Top_10_Gross、Overall_Gross、Releases
+    - 转换日期为编号 Dates_number
+    - 去掉美元符号、逗号，转为 float 类型
+    - 使用线性插值补全缺失值
     """
     df = data_country.copy()
-    df.interpolate(method='linear', inplace=True)
+
+    # 1. 仅保留指定列（根据你的数据实际字段名）
+    df = df[['Dates', 'Top_10_Gross', 'Overall_Gross', 'Releases']].copy()
+
+    # 2. 生成时间编号列
+    df['Dates_number'] = range(1, len(df) + 1)
+
+    # 3. 清洗货币格式为数值
+    def clean_money(value):
+        if pd.isnull(value):
+            return None
+        value = re.sub(r'[$,]', '', str(value))
+        try:
+            return float(value)
+        except ValueError:
+            return None
+
+    df['Top_10_Gross'] = df['Top_10_Gross'].apply(clean_money)
+    df['Overall_Gross'] = df['Overall_Gross'].apply(clean_money)
+
+    # 4. 线性插值
+    df['Top_10_Gross'] = df['Top_10_Gross'].interpolate(method='linear')
+    df['Overall_Gross'] = df['Overall_Gross'].interpolate(method='linear')
+    df['Releases'] = pd.to_numeric(df['Releases'], errors='coerce')
+    df['Releases'] = df['Releases'].interpolate(method='linear')
+
+    # 5. 重置索引
+    df.reset_index(drop=True, inplace=True)
+
     return df
 
 
