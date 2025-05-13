@@ -1,111 +1,102 @@
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, send_file, send_from_directory
 from storage import DataManager
 import pandas as pd
 from io import BytesIO
 
-app = Flask(__name__)
+
+
 data_manager = DataManager()
 
-# 主页，显示上传按钮
+app = Flask(__name__, template_folder='templates')
+
 @app.route('/')
 def main():
     return render_template('index.html')
 
-# 文件上传路由
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    if file:
-        # csv文件
-        df = pd.read_csv(file)
-        # 存储数据逻辑
-        # ...
-        return jsonify({'message': 'File successfully uploaded'}), 200
 
-# API 分析功能块
-@app.route('/apianalyze/loaddata1', methods=['POST'])
-def load_data1():
-    # 实现加载数据逻辑
-    # ...
-    return jsonify({'message': 'Data loaded for analysis'}), 200
+# ================== API Analyze Block ==================
 
-@app.route('/apianalyze/cleandata1', methods=['POST'])
-def clean_data1():
-    # 实现清洗数据逻辑
-    # ...
-    return jsonify({'message': 'Data cleaned for analysis'}), 200
+@app.route('/api_analyze', methods=['GET'])
+def call_api_analyze():
+    # 路径加载豆瓣TOP250数据
+    data_manager.load_data1('path/to/douban_top250.csv')
+    data_manager.clean_data1()
+    data_manager.analyze_data()
+    return data_manager.visual1()
 
-@app.route('/apianalyze/analyzedata', methods=['POST'])
-def analyze_data():
-    # 实现分析数据逻辑
-    # ...
-    return jsonify({'message': 'Data analyzed'}), 200
+@app.route('/export_analyze', methods=['GET'])
+def export_analyze():
+    df = data_manager.export_analysis_result_top250()
+    if df is None:
+        return jsonify({'error': '暂无可用的分析结果，请先完成分析操作'}), 400
 
-@app.route('/apianalyze/visual1', methods=['GET'])
-def visual1():
-    # 实现可视化数据逻辑
-    # ...
-    # 保存为 PNG 图片
-    img = BytesIO()
-    # 代码：生成图表并保存到 img
-    img.seek(0)
-    return send_file(img, mimetype='image/png')
+    csv_bytes = BytesIO()
+    df.to_csv(csv_bytes, index=False, encoding='utf-8-sig')
+    csv_bytes.seek(0)
 
-# API 预测功能块
-@app.route('/apipredict/loaddata2', methods=['POST'])
-def load_data2():
-    # 实现加载数据逻辑
-    # ...
-    return jsonify({'message': 'Data loaded for prediction'}), 200
+    return send_file(
+        csv_bytes,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='豆瓣top250_分析结果.csv'
+    )
 
-@app.route('/apipredict/cleandata2', methods=['POST'])
-def clean_data2():
-    # 实现清洗数据逻辑
-    # ...
-    return jsonify({'message': 'Data cleaned for prediction'}), 200
+# ================== API Predict Block ==================
 
-@app.route('/apipredict/predictdata', methods=['POST'])
-def predict_data():
-    # 实现预测数据逻辑
-    # ...
-    return jsonify({'message': 'Data predicted'}), 200
+@app.route('/api_predict', methods=['GET'])
+def call_api_predict():
+    country = request.args.get('country', 'China')  # 默认为中国
+    data_manager.load_data2(country, f'path/to/country_data_{country}.csv')
+    data_manager.clean_data2(country)
+    data_manager.predict_data(country)
+    return data_manager.visual2()
 
-@app.route('/apipredict/visual2', methods=['GET'])
-def visual2():
-    # 实现可视化数据逻辑
-    # ...
-    # 保存为 PNG 图片
-    img = BytesIO()
-    # 代码：生成图表并保存到 img
-    img.seek(0)
-    return send_file(img, mimetype='image/png')
+@app.route('/export_predict', methods=['GET'])
+def export_predict():
+    country = request.args.get('country', 'China')
+    df = data_manager.export_prediction_result_country(country)
+    if df is None:
+        return jsonify({'error': f'暂无 {country} 的预测结果，请先完成预测操作'}), 400
 
-# API 评论功能块
-@app.route('/apicomments/loaddata3', methods=['POST'])
-def load_data3():
-    # 实现加载数据逻辑
-    # ...
-    return jsonify({'message': 'Data loaded for comments'}), 200
+    csv_bytes = BytesIO()
+    df.to_csv(csv_bytes, index=False, encoding='utf-8-sig')
+    csv_bytes.seek(0)
 
-@app.route('/apicomments/cleandata3', methods=['POST'])
-def clean_data3():
-    # 实现清洗数据逻辑
-    # ...
-    return jsonify({'message': 'Data cleaned for comments'}), 200
+    return send_file(
+        csv_bytes,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'票房预测_{country}_分析结果.csv'
+    )
 
-@app.route('/apicomments/visual3', methods=['GET'])
-def visual3():
-    # 实现可视化数据逻辑
-    # ...
-    # 保存为 PNG 图片
-    img = BytesIO()
-    # 代码：生成图表并保存到 img
-    img.seek(0)
-    return send_file(img, mimetype='image/png')
+# ================== API Comments Block ==================
+
+@app.route('/api_comments', methods=['GET'])
+def call_api_comments():
+    movie = request.args.get('movie', '肖申克的救赎')
+    data_manager.load_data3(movie, f'path/to/comments_{movie}.csv')
+    data_manager.clean_data3(movie)
+    data_manager.analyze_data3() 
+    return data_manager.visual3()
+
+@app.route('/export_comments', methods=['GET'])
+def export_comments():
+    movie = request.args.get('movie', '肖申克的救赎')
+    df = data_manager.export_analysis_result_comments(movie) 
+    if df is None:
+        return jsonify({'error': f'暂无 {movie} 的评论分析结果，请先完成分析操作'}), 400
+
+    csv_bytes = BytesIO()
+    df.to_csv(csv_bytes, index=False, encoding='utf-8-sig')
+    csv_bytes.seek(0)
+
+    return send_file(
+        csv_bytes,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'评论分析_{movie}_词频统计.csv'
+    )
+
 
 if __name__ == '__main__':
     app.run(debug=True)
