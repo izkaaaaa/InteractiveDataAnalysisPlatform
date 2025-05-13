@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
-def K_means(df,n_clusters=4):
+def analysis_function(df,n_clusters=4):
     #df是包括电影名，评分，评价人数和上映年份的DataFrame
     #n_clusters把电影分成几类，默认是4类
     df_copy=df.copy()
