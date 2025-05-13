@@ -25,6 +25,12 @@ def clean_data1(data_top250: pd.DataFrame) -> pd.DataFrame:
 
     # 删除缺失值
     df.dropna(inplace=True)
+    #异常值处理
+    df = df[(df['rating'] >= 0) & (df['rating'] <= 10)]
+    df = df[df['num_ratings'] > 0]
+    df = df[(df['year'] >= 1900) & (df['year'] <= 2025)]
+    # 重置索引
+    df.reset_index(drop=True, inplace=True)
 
     return df
 
