@@ -17,7 +17,12 @@ class DataManager:
         self.analysis_data = None  # 豆瓣TOP250数据分析结果
         self.predict_data = {}  # 特定国家数据预测结果
 
-        self.visuals_top250 = {}  # 豆瓣TOP250数据可视化图表数据缓存, key: 图类型, value: 图表对象或参数
+        # 扩展豆瓣TOP250可视化存储, key: 图类型, value: 图表对象或参数
+        self.visuals_top250_1 = {}  # 三维散点图
+        self.visuals_top250_2 = {}  # 平行坐标图
+        self.visuals_top250_3 = {}  # 雷达图
+        self.visuals_top250_4 = {}  # PCA降维图
+        self.visuals_top250_5 = {}  # 箱线图
         self.visuals_country = {}  # 特定国家数据可视化图表数据缓存, key: 图类型, value: 图表对象或参数
         self.visuals_comments = {}  # 电影评论数据词云图数据缓存, key: 图类型, value: 图表对象或参数
 
@@ -151,21 +156,47 @@ class DataManager:
         """导出特定国家数据预测结果"""
         return self.predict_data.get(country_name).copy() if country_name in self.predict_data else None
 
-    def store_visual1(self, vis_type, visual_obj):
-        """
-        存储豆瓣TOP250数据可视化图表对象
-        :param vis_type: 图表类型
-        :param visual_obj: 图表对象或参数
-        """
-        self.visuals_top250[vis_type] = visual_obj
+        # 新增可视化存储和获取方法
 
-    def get_visual1(self, vis_type):
-        """
-        获取豆瓣TOP250数据可视化指定类型的图表对象
-        :param vis_type: 图表类型
-        """
-        return self.visuals_top250.get(vis_type)
+    def store_visual1_1(self, vis_type, visual_obj):
+        """存储三维散点图"""
+        self.visuals_top250_1[vis_type] = visual_obj
 
+    def get_visual1_1(self, vis_type):
+        """获取三维散点图"""
+        return self.visuals_top250_1.get(vis_type)
+
+    def store_visual1_2(self, vis_type, visual_obj):
+        """存储平行坐标图"""
+        self.visuals_top250_2[vis_type] = visual_obj
+
+    def get_visual1_2(self, vis_type):
+        """获取平行坐标图"""
+        return self.visuals_top250_2.get(vis_type)
+
+    def store_visual1_3(self, vis_type, visual_obj):
+        """存储雷达图"""
+        self.visuals_top250_3[vis_type] = visual_obj
+
+    def get_visual1_3(self, vis_type):
+        """获取雷达图"""
+        return self.visuals_top250_3.get(vis_type)
+
+    def store_visual1_4(self, vis_type, visual_obj):
+        """存储PCA降维图"""
+        self.visuals_top250_4[vis_type] = visual_obj
+
+    def get_visual1_4(self, vis_type):
+        """获取PCA降维图"""
+        return self.visuals_top250_4.get(vis_type)
+
+    def store_visual1_5(self, vis_type, visual_obj):
+        """存储箱线图"""
+        self.visuals_top250_5[vis_type] = visual_obj
+
+    def get_visual1_5(self, vis_type):
+        """获取箱线图"""
+        return self.visuals_top250_5.get(vis_type)
     def store_visual2(self, vis_type, visual_obj):
         """
         存储特定国家数据可视化图表对象
