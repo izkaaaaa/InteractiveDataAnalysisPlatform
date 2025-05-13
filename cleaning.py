@@ -45,7 +45,7 @@ def clean_data2(data_country: pd.DataFrame) -> pd.DataFrame:
     """
     df = data_country.copy()
 
-    # 1. 仅保留指定列（根据你的数据实际字段名）
+    # 1. 仅保留指定列
     df = df[['Dates', 'Top_10_Gross', 'Overall_Gross', 'Releases']].copy()
 
     # 2. 生成时间编号列
