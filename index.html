@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>电影数据分析与推荐系统</h1>
+
+    <!-- API Analyze Section -->
+    <h2>豆瓣TOP250电影聚类分析</h2>
+    <button id="analyzeButton1">分析</button>
+    <button id="exportButton1">导出</button>
+    <div id="result1"></div>
+    <img id="visualization1" src="{{ url_for('static', filename='豆瓣top250.jpg') }}" alt="Visualization1">
+
+    <!-- API Predict Section -->
+    <h2>不同国家电影票房预测</h2>
+    <select id="countrySelect">
+        <option value="China">中国</option>
+        <option value="Japan">日本</option>
+        <option value="France">法国</option>
+        <option value="Germany">德国</option>
+        <option value="UK">英国</option>
+    </select>
+    <input type="file" id="fileInput2">
+    <button id="analyzeButton2">分析</button>
+    <button id="exportButton2">导出</button>
+    <div id="result2"></div>
+    <img id="visualization2" src="{{ url_for('static', filename='R.jpg') }}" alt="Visualization2">
+
+    <!-- API Comments Section -->
+    <h2>不同电影评价词云图</h2>
+    <select id="movieSelect">
+        <option value="The Shawshank Redemption">肖申克的救赎</option>
+        <option value="霸王别姬">霸王别姬</option>
+    </select>
+    <input type="file" id="fileInput3">
+    <button id="analyzeButton3">分析</button>
+    <button id="exportButton3">导出</button>
+    <div id="result3"></div>
+    <img id="visualization3" src="{{ url_for('static', filename='img.png') }}" alt="Visualization3">
+    <script>
+    $(document).ready(function () {
+        // API Analyze Section (Section 1)
+        $('#analyzeButton1').click(function () {
+            $.ajax({
+                url: '/apianalyze/analyzedata',
+                type: 'GET',
+                success: function (response) {
+                    $('#result1').append('<p>' + response.message + '</p>');
+                },
+                error: function (xhr, status, error) {
+                    $('#result1').append('<p>Error: ' + error + '</p>');
+                }
+            });
+        });
+
+        $('#exportButton1').click(function () {
+            $.ajax({
+                url: '/apianalyze/exportdata',
+                type: 'GET',
+                success: function (response) {
+                    var blob = new Blob([response.data], { type: 'application/octet-stream' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'exported_data.csv';
+                    a.click();
+                },
+                error: function (xhr, status, error) {
+                    $('#result1').append('<p>Error: ' + error + '</p>');
+                }
+            });
+        });
+
+
+        // API Predict Section (Section 2)
+        $('#analyzeButton2').click(function () {
+            var country = $('#countrySelect').val();
+            $.ajax({
+                url: '/apipredict/analyzedata',
+                type: 'GET',
+                data: { country: country },
+                success: function (response) {
+                    $('#result2').append('<p>' + response.message + '</p>');
+                },
+                error: function (xhr, status, error) {
+                    $('#result2').append('<p>Error: ' + error + '</p>');
+                }
+            });
+        });
+
+        $('#exportButton2').click(function () {
+            var country = $('#countrySelect').val();
+            $.ajax({
+                url: '/apipredict/exportdata',
+                type: 'GET',
+                data: { country: country },
+                success: function (response) {
+                    var blob = new Blob([response.data], { type: 'application/octet-stream' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'exported_data.csv';
+                    a.click();
+                },
+                error: function (xhr, status, error) {
+                    $('#result2').append('<p>Error: ' + error + '</p>');
+                }
+            });
+        });
+
+
+        // API Comments Section (Section 3)
+        $('#analyzeButton3').click(function () {
+            var movie = $('#movieSelect').val();
+            $.ajax({
+                url: '/apicomments/analyzedata',
+                type: 'GET',
+                data: { movie: movie },
+                success: function (response) {
+                    $('#result3').append('<p>' + response.message + '</p>');
+                },
+                error: function (xhr, status, error) {
+                    $('#result3').append('<p>Error: ' + error + '</p>');
+                }
+            });
+        });
+
+        $('#exportButton3').click(function () {
+            var movie = $('#movieSelect').val();
+            $.ajax({
+                url: '/apicomments/exportdata',
+                type: 'GET',
+                data: { movie: movie },
+                success: function (response) {
+                    var blob = new Blob([response.data], { type: 'application/octet-stream' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'exported_data.csv';
+                    a.click();
+                },
+                error: function (xhr, status, error) {
+                    $('#result3').append('<p>Error: ' + error + '</p>');
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>
